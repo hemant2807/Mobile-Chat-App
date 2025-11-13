@@ -1,59 +1,157 @@
-import { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
-import API from "./config/api";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-export default function LoginScreen() {
+export default function Login() {
   const router = useRouter();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleLogin = async () => {
-    try {
-      const { data } = await API.post("/auth/login", { username, password });
-      router.replace("/chatlist");
-    } catch (err: any) {
-      Alert.alert("Login Failed", err.response?.data?.error || "Server error");
-    }
-  };
+  const [showPass, setShowPass] = useState(false);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Guftagu Login</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.inner}>
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => router.push("/")}
+        >
+          <Ionicons name="chevron-back" size={28} color="#1F242D" />
+        </TouchableOpacity>
 
-      <TextInput
-        placeholder="Username"
-        style={styles.input}
-        value={username}
-        onChangeText={setUsername}
-      />
+        <Text style={styles.heading}>
+          Welcome back! We've{"\n"}missed your presence here
+        </Text>
 
-      <TextInput
-        placeholder="Password"
-        style={styles.input}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <View style={styles.inputBox}>
+          <TextInput
+            placeholder="Username"
+            placeholderTextColor="#9CA3AF"
+            style={styles.input}
+            value={username}
+            onChangeText={setUsername}
+          />
+        </View>
 
-      <Button title="Login" onPress={handleLogin} />
+        <View style={styles.inputBox}>
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor="#9CA3AF"
+            style={styles.input}
+            secureTextEntry={!showPass}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity
+            style={styles.eyeBtn}
+            onPress={() => setShowPass(!showPass)}
+          >
+            <Ionicons
+              name={!showPass ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color="#6B7280"
+            />
+          </TouchableOpacity>
+        </View>
 
-      <Text style={styles.link} onPress={() => router.push("/register")}>
-        New user? Register here
-      </Text>
-    </View>
+        <TouchableOpacity style={styles.loginBtn}>
+          <Text style={styles.loginText}>Login</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.bottomText}>
+          Don’t have an account?{" "}
+          <Text style={styles.signup} onPress={() => router.push("/register")}>
+            SignUp
+          </Text>
+        </Text>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20 },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingHorizontal: 24,
   },
-  input: { borderWidth: 1, padding: 10, borderRadius: 5, marginBottom: 10 },
-  link: { marginTop: 10, color: "blue", textAlign: "center" },
+
+  inner: {
+    flex: 1,
+    marginTop: 60,
+  },
+
+  backBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+  },
+
+  heading: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#1F242D",
+    marginTop: 40,
+    lineHeight: 36,
+  },
+
+  inputBox: {
+    marginTop: 25,
+    height: 56,
+    borderRadius: 12,
+    backgroundColor: "#F3F4F6",
+    paddingHorizontal: 16,
+    justifyContent: "center",
+  },
+
+  input: {
+    fontSize: 16,
+    color: "#111827",
+  },
+
+  eyeBtn: {
+    position: "absolute",
+    right: 16,
+    top: 18,
+  },
+
+  loginBtn: {
+    marginTop: 30,
+    backgroundColor: "#1F242D",
+    height: 56,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  loginText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#fff",
+  },
+
+  bottomText: {
+    marginTop: 30,
+    textAlign: "center",
+    fontSize: 16,
+    color: "#6B7280",
+  },
+
+  signup: {
+    color: "#1F242D",
+    fontWeight: "700",
+  },
 });
