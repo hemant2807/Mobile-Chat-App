@@ -34,7 +34,7 @@ export default function Login() {
         password,
       });
 
-      await AsyncStorage.setItem("token", res.data.token);
+      await AsyncStorage.setItem("user", JSON.stringify(res.data));
 
       router.replace("/chatlist");
     } catch (err: any) {
