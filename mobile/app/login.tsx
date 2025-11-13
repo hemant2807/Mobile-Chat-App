@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import API from "./config/api";
 
 export default function Login() {
   const router = useRouter();
@@ -16,6 +18,32 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!username || !password) {
+      alert("Enter username & password");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await API.post("/auth/login", {
+        username,
+        password,
+      });
+
+      await AsyncStorage.setItem("token", res.data.token);
+
+      router.replace("/chatlist");
+    } catch (err: any) {
+      console.log("LOGIN ERROR:", err.response?.data);
+      alert(err?.response?.data?.error || "Invalid username or password");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -62,8 +90,10 @@ export default function Login() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.loginBtn}>
-          <Text style={styles.loginText}>Login</Text>
+        <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+          <Text style={styles.loginText}>
+            {loading ? "Logging in..." : "Login"}
+          </Text>
         </TouchableOpacity>
 
         <Text style={styles.bottomText}>
@@ -83,12 +113,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 24,
   },
-
   inner: {
     flex: 1,
     marginTop: 60,
   },
-
   backBtn: {
     width: 48,
     height: 48,
@@ -99,7 +127,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
   },
-
   heading: {
     fontSize: 28,
     fontWeight: "700",
@@ -107,7 +134,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
     lineHeight: 36,
   },
-
   inputBox: {
     marginTop: 25,
     height: 56,
@@ -116,18 +142,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     justifyContent: "center",
   },
-
   input: {
     fontSize: 16,
     color: "#111827",
   },
-
   eyeBtn: {
     position: "absolute",
     right: 16,
     top: 18,
   },
-
   loginBtn: {
     marginTop: 30,
     backgroundColor: "#1F242D",
@@ -136,20 +159,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   loginText: {
     fontSize: 18,
     fontWeight: "600",
     color: "#fff",
   },
-
   bottomText: {
     marginTop: 30,
     textAlign: "center",
     fontSize: 16,
     color: "#6B7280",
   },
-
   signup: {
     color: "#1F242D",
     fontWeight: "700",

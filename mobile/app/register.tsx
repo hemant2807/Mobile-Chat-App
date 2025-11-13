@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import API from "./config/api";
 
 export default function Register() {
   const router = useRouter();
@@ -20,6 +22,60 @@ export default function Register() {
   const [gender, setGender] = useState<"male" | "female" | null>(null);
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSignup = async () => {
+    if (!fullName || !username || !password || !confirmPassword || !gender) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords don't match!");
+      return;
+    }
+
+    if (password.length < 8) {
+      alert("Password should be at least 8 characters.");
+      return;
+    }
+
+    const specialChar = /[!@#$%^&*(),.?":{}|<>]/;
+    if (!specialChar.test(password)) {
+      alert("Password should contain at least one special character.");
+      return;
+    }
+
+    const uppercase = /[A-Z]/;
+    if (!uppercase.test(password)) {
+      alert("Password must contain at least one uppercase letter.");
+      return;
+    }
+
+    const digit = /[0-9]/;
+    if (!digit.test(password)) {
+      alert("Password must contain at least one number.");
+      return;
+    }
+
+    try {
+      const res = await API.post("/auth/signup", {
+        fullName,
+        username,
+        password,
+        confirmPassword,
+        gender,
+      });
+
+      alert("Signup successful! Please login.");
+      router.push("/login");
+    } catch (err: any) {
+      console.log("SIGNUP ERROR:", err?.response?.data);
+      alert(err?.response?.data?.error || "Signup failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -117,8 +173,10 @@ export default function Register() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.registerBtn}>
-          <Text style={styles.registerText}>Register</Text>
+        <TouchableOpacity style={styles.registerBtn} onPress={handleSignup}>
+          <Text style={styles.registerText}>
+            {loading ? "Registering..." : "Register"}
+          </Text>
         </TouchableOpacity>
 
         <Text style={styles.bottomText}>
@@ -138,12 +196,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 24,
   },
-
   inner: {
     flex: 1,
     marginTop: 60,
   },
-
   backBtn: {
     width: 48,
     height: 48,
@@ -154,7 +210,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
   },
-
   heading: {
     fontSize: 28,
     fontWeight: "700",
@@ -162,7 +217,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 10,
   },
-
   inputBox: {
     marginTop: 18,
     height: 56,
@@ -171,30 +225,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     justifyContent: "center",
   },
-
   input: {
     fontSize: 16,
     color: "#111827",
   },
-
   eyeBtn: {
     position: "absolute",
     right: 16,
     top: 18,
   },
-
   genderRow: {
     flexDirection: "row",
     gap: 30,
     marginTop: 20,
   },
-
   genderOption: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
-
   radio: {
     width: 20,
     height: 20,
@@ -202,16 +251,13 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#1F242D",
   },
-
   radioActive: {
     backgroundColor: "#1F242D",
   },
-
   genderLabel: {
     fontSize: 16,
     color: "#1F242D",
   },
-
   registerBtn: {
     marginTop: 30,
     backgroundColor: "#1F242D",
@@ -220,20 +266,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   registerText: {
     fontSize: 18,
     fontWeight: "600",
     color: "#fff",
   },
-
   bottomText: {
     marginTop: 30,
     textAlign: "center",
     fontSize: 16,
     color: "#6B7280",
   },
-
   loginLink: {
     color: "#1F242D",
     fontWeight: "700",

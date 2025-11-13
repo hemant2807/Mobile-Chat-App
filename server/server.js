@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: ["http://localhost:8081", "192.168.211.1:8081", "exp://30.31.5.69.8081"],
+    origin: "*",
     credentials: true,
   })
 );
@@ -35,7 +35,7 @@ app.get("/", (req, res) => {
   res.send("APP is running...");
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0",() => {
   connectToMongoDB();
   console.log(`Server started on port ${PORT}`);
 });
