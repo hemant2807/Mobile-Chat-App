@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import API from "./config/api";
+import { initSocket } from "@/SocketClient";
 
 export default function Login() {
   const router = useRouter();
@@ -35,6 +36,8 @@ export default function Login() {
       });
 
       await AsyncStorage.setItem("user", JSON.stringify(res.data));
+
+      initSocket(res.data._id);
 
       router.replace("/chatlist");
     } catch (err: any) {

@@ -8,6 +8,7 @@ import connectToMongoDB from "./db/connectToMongoDB.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import messageRoutes from "./routes/message.routes.js";
+import conversationRoutes from "./routes/conversation.routes.js";
 import { fileURLToPath } from "url";
 import { app, server } from "./socket/socket.js";
 
@@ -30,12 +31,13 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/conversations", conversationRoutes);
 
 app.get("/", (req, res) => {
   res.send("APP is running...");
 });
 
-server.listen(PORT, "0.0.0.0",() => {
+server.listen(PORT, "0.0.0.0", () => {
   connectToMongoDB();
   console.log(`Server started on port ${PORT}`);
 });
